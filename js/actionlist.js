@@ -1072,34 +1072,40 @@ markRow(t);
 
 function actionDone(id)
 {  //j5
-//Toggle action as done
+        //Toggle action as done
 
-try{var pn=NSpace.GetItemfromID(id);}catch(e){alert(txtInvalid);return true;}
-	if (pn.Complete==false){
-		//move recurrent tasks to the next recurrence
-		if (pn.isRecurring==true)
-		{
-		var skp=pn.SkipRecurrence();
-		pn.Save();
-		var t=new Date(pn.itemProperties.item(dueProperty).Value);
-		var dd=DisplayDate(t);
-		if (skp==true){Ext.info.msg(txtCompleted,"Task Recurrence completed. Task recreated for "+dd);return;}
-		}
-	
-	pn.Complete=true;
-    var nc="";
-			e=pn.itemProperties.item(catProperty).Value;
-			e=e.replace(new RegExp(",","g"),";");
-			var ee=e.split(";");
-			for (var x=0;x<ee.length;x++)
-			{
-				if (trimLow(ee[x])!=trimLow(getActionTagName())){
-				nc=nc+ee[x]+";";}
-			}
-	pn.itemProperties.item(catProperty).Value=nc;
-	}
-	else{pn.Complete=false;}
-	pn.Save();
+        try{var pn=NSpace.GetItemfromID(id);}catch(e){alert(txtInvalid);return true;}
+
+        if (pn.Complete==false){
+                //move recurrent tasks to the next recurrence
+                if (pn.isRecurring==true) {
+                        var oldt=new Date(pn.itemProperties.item(dueProperty).Value);
+                        pn.Complete=true;
+                        pn.Save();
+                        var t=new Date(pn.itemProperties.item(dueProperty).Value);
+                        if ((t-oldt) != 0) {
+                                var dd=DisplayDate(t);
+                                Ext.info.msg(txtCompleted,"Task Recurrence completed. Task recreated for "+dd);
+                                return;
+                        }
+                }
+
+                pn.Complete=true;
+                var nc="";
+                e=pn.itemProperties.item(catProperty).Value;
+                e=e.replace(new RegExp(",","g"),";");
+                var ee=e.split(";");
+                for (var x=0;x<ee.length;x++) {
+                        if (trimLow(ee[x])!=trimLow(getActionTagName())) {
+                                nc=nc+ee[x]+";";
+                        }
+                }
+                pn.itemProperties.item(catProperty).Value=nc;
+        }
+        else {
+                pn.Complete=false;
+        }
+        pn.Save();
 }
 
 function startStopAction(id)
